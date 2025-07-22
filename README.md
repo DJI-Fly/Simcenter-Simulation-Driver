@@ -1,11 +1,17 @@
 # Simcenter-Simulation-Driver
 MATLAB code for secondary development of Simcenter. Users can run simulations by modifying parameters in .txt files. The script loads models, sets simulation options, runs the solver, and outputs results automatically.
 clc;clear;
+
 addpath(fullfile(getenv('AME'),'scripting','matlab','amesim'));%将AMESim专用函数添加到运行路径
+
 try
+
 % 读取仿真文件的文件名
+
 name = read_data('20250120_CXY_To_Xie输入参数/input_amefile.txt','ameFileName');
+
 % 检查模型（文件名与模型名称必须一致）
+
 eval(['! AMECirChecker -g -q --nobackup --nologfile ',name])
 % 载入模型（文件名与模型名称必须一致）
 eval([' ! AMELoad ', name])
