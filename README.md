@@ -1,5 +1,6 @@
 # Simcenter-Simulation-Driver
 MATLAB code for secondary development of Simcenter. Users can run simulations by modifying parameters in .txt files. The script loads models, sets simulation options, runs the solver, and outputs results automatically.
+
 clc;clear;
 
 addpath(fullfile(getenv('AME'),'scripting','matlab','amesim'));%将AMESim专用函数添加到运行路径
@@ -13,63 +14,121 @@ name = read_data('20250120_CXY_To_Xie输入参数/input_amefile.txt','ameFileNam
 % 检查模型（文件名与模型名称必须一致）
 
 eval(['! AMECirChecker -g -q --nobackup --nologfile ',name])
+
 % 载入模型（文件名与模型名称必须一致）
+
 eval([' ! AMELoad ', name])
+
 sname1 = split(name,'.');
+
 sname= char(sname1(1));
+
 % 设置仿真参数
+
 %读取仿真参数
+
 f=read_data('20250120_CXY_To_Xie输入参数/算法参数.txt','finalTime');
+
 s=read_data('20250120_CXY_To_Xie输入参数/算法参数.txt','step');
+
 q=cell2mat(f);
+
 % 设置仿真参数
+
 sim_opt = amegetsimopt(sname);
+
 sim_opt.finalTime = str2double(cell2mat(f));
+
 sim_opt.printInterval = str2double(cell2mat(s));
+
 %处理输出参数
+
 [r,s]=ameloadt(name);
+
 output=strings(size(s,1),1);
+
 s6 = strings(size(s,1),1);
+
 for i=1:size(s,1)
+    
     a=strsplit(s(i,:),']');
+    
     a=[cell2mat(a(1)),']'];
+    
     s6(i)=string(a);
+
 end
+
 for i=2:size(s6,1)
+
 inputStr = char(s6(i));
+
 formattedStr = formatString1(inputStr);
+
 s6(i) = string(formattedStr);
+
 end
+
 for i=1:size(s6,1)
+    
     s6(i)=erase(s6(i),'[');
+    
     s6(i)=erase(s6(i),']');
+
 end
+
 for i=1:size(s6,1)
+    
     s6(i)=strrep(s6(i),' ','#');
+
 end
+
 s6(1)=[];
+
 %判断是否有上一次仿真
+
 if exist('20250120_CXY_To_Xie输入参数/nextinput_Param.txt', 'file')
+
 %读取上一次仿真的输出以及用户需要修改的量
+
 canshu_ming=read_data('nextinput_Param.txt','nextinput_Param_ming');
+
 canshu_zhi_str=strings(size(canshu_ming));
+
 canshu_zhi_str=read_data('nextinput_Param.txt','nextinput_Param_zhi');
+
 for i=1:size(canshu_ming,1)
+    
     canshu_zhi_double(i,:)=str2double(canshu_zhi_str(i));
+
 end
+
 canshu_danwei = read_data('nextinput_Param.txt','nextinput_Param_danwei');
+
 gain_parname = read_data('20250120_CXY_To_Xie输入参数/参数化变量.txt','paramName');
+
 for i=1:size(gain_parname,1)
+    
     gain_parname(i)= strrep(gain_parname(i),'.',';');
+
 end
+
 %找出用户指定输入与上一次仿真重合的量
+
 gain_parname = setdiff(gain_parname,canshu_ming);
+
 for i=1:size(gain_parname,1)
+    
     gain_parname(i)= strrep(gain_parname(i),';','.');
+
 end
+
 %修改上一次仿真输出的格式
+
 a=' [';
+
 b=']';
+
 for i=1:size(canshu_ming,1)
     canshu_ming(i)= strrep(canshu_ming(i),'#',' ');
     canshu_ming(i)=strrep(canshu_ming(i),'_',' instance ');
